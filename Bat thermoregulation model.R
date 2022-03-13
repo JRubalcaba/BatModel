@@ -5,7 +5,7 @@ require(afpt)
 
 M <- exp(seq(-2, 7.5, length.out = 100))     # Range of body masses (g)
 Awings <- exp(seq(-6, -1, length.out = 100)) # Wing surface areas (m2)
-Ta = 25  # Ambient temperature (ºC)
+Ta = 25  # Ambient temperature (ÂºC)
 
 Pchem <- Pmech <- v_matrix <- array(NA, dim=c(100,100))
 for(i in 1:length(M)){
@@ -33,16 +33,16 @@ for(i in 1:length(M)){
   print(i)
 }
 
-############################################################ LOAD Functions & Packages
+############################################################ THERMOREGULATION
 
-batmodel <- function(Tc,     # Core temperature (ºC)
+batmodel <- function(Tc,     # Core temperature (ÂºC)
                      M,      # Body mass (g)
                      Awings, # Wings area (m2)
-                     kw,     # Thermal conductivity of the wings (Wm-1ºC-1)
+                     kw,     # Thermal conductivity of the wings (Wm-1ÂºC-1)
                      shape,  # Shape factor (1: spherical, >1: ellipsoidal)
                      rf,     # Insulation layer depth (m)
                      emis,   # Emissivity of long-wave radiation (0-1)
-                     Ta,     # Air temperature (ºC)
+                     Ta,     # Air temperature (ÂºC)
                      v,      # Wind speed (ms-1)
                      RH)      # Solar radiation (direct + scattered) (Wm-2)
 {
@@ -74,7 +74,7 @@ batmodel <- function(Tc,     # Core temperature (ºC)
   
   ## Body convection ## 
   L = V^(1/3)   # Characteristic length (m) (Mitchell 1976)
-  kf =  1.5207e-11*(Ta+273)^3 - 4.8574e-08*(Ta+273)^2 + 1.0184e-04*(Ta+273) - 3.9333e-04 # Thermal conductivity of air (W m-1 ºC-1)
+  kf =  1.5207e-11*(Ta+273)^3 - 4.8574e-08*(Ta+273)^2 + 1.0184e-04*(Ta+273) - 3.9333e-04 # Thermal conductivity of air (W m-1 ÂºC-1)
   Pd = 101325   # Atmosferic pressure (Pa) 
   rho_da = Pd / (287.05 * (Ta+273))  # Density of dry air (kg m-3)
   Pv = exp(77.3450 + 0.0057 * (Ta+273) - 7235 / (Ta+273)) / (Ta+273)^8.2  # Water vapor pressure (Pa)
@@ -82,7 +82,7 @@ batmodel <- function(Tc,     # Core temperature (ºC)
   x = RH * 0.62198 * Pv / Pd # Humidity ratio (mass_air_water / mas_dry_air)
   rho = rho_da * (1 + x) / (1 + 1.609 * x) # Density of moist air (Kg m-3)
   mu = 1.458e-6 * (Ta+273)^(3/2) / ((Ta+273) + 110.4)  # Air dynamic viscosity (Pa s)
-  cp = 1000*(-3.46607e-20*Ta^6+9.121847e-17*Ta^5+1.079642e-13*Ta^4-5.714484e-10*Ta^3+5.773354e-07*Ta^2+8.976385e-06*Ta+1.00528623891845) # Specific heat capacity air (J Kg-1 ºC-1)
+  cp = 1000*(-3.46607e-20*Ta^6+9.121847e-17*Ta^5+1.079642e-13*Ta^4-5.714484e-10*Ta^3+5.773354e-07*Ta^2+8.976385e-06*Ta+1.00528623891845) # Specific heat capacity air (J Kg-1 ÂºC-1)
   
   Re = rho * v * L / mu     # Reynolds number
   Pr = mu * cp / kf         # Prandtl number
@@ -114,7 +114,7 @@ batmodel <- function(Tc,     # Core temperature (ºC)
   # Wing T profile
   d = exp(0.9425) * Awings^0.4934 / 2 # wing length (m) # exp(0.75549) * Awings^0.45310 / 2  #
   Nu = 0.664 * Re^0.5 * Pr^0.33
-  hc_wing = Nu * kf / d + R # wing convective heat transfer coefficient (Wm-2ºC-1; from Reichard et al. 2010)
+  hc_wing = Nu * kf / d + R # wing convective heat transfer coefficient (Wm-2ÂºC-1; from Reichard et al. 2010)
 
   W = Awings / (2*d) # wing width (m)
   t = 2e-5 # wing thickness (m) (Cheney et al. 2015 https://royalsocietypublishing.org/doi/10.1098/rsif.2014.1286)
@@ -122,19 +122,19 @@ batmodel <- function(Tc,     # Core temperature (ºC)
   P = 2*W+2*t # wing perimeter (m)
   m = sqrt(hc_wing*P/(kw*Ac))
   
-  Rwing = 1/2 * (cosh(m*d) + hc_wing/(m*d) * sinh(m*d)) / (sqrt(hc_wing*P*kw*Ac) * (sinh(m*d) + hc_wing/(m*d) * cosh(m*d))) # Wing resistance to covective cooling (ºC W-1)
+  Rwing = 1/2 * (cosh(m*d) + hc_wing/(m*d) * sinh(m*d)) / (sqrt(hc_wing*P*kw*Ac) * (sinh(m*d) + hc_wing/(m*d) * cosh(m*d))) # Wing resistance to covective cooling (ÂºC W-1)
 
   ## Metabolic Heat Production ## 
-  kb = 0.5 + 6.14*b + 0.439 # Thermal conductivity body (Wm-1ºC-1) Porter and Kearney (2009)
+  kb = 0.5 + 6.14*b + 0.439 # Thermal conductivity body (Wm-1ÂºC-1) Porter and Kearney (2009)
   
-  Rbody = S2 / (2*V*kb) # Body resistance to heat conduction (ºC W-1)
+  Rbody = S2 / (2*V*kb) # Body resistance to heat conduction (ÂºC W-1)
   Rconv = 1 / (hc*Ao)   # Convective heat transfer resistance
   Rir = 1 / (R*Ao)           # IR emission resistance
   Rins = (bo - b) / (Ao * kins) # Resistance of insulation layer 
   
-  # Rtot = Rbody + Rins + (Rconv * Rir * Rwing) / (Rconv + Rir + Rwing) # Total resistance (ºC W-1)
+  # Rtot = Rbody + Rins + (Rconv * Rir * Rwing) / (Rconv + Rir + Rwing) # Total resistance (ÂºC W-1)
   RE = Rconv * Rir / (Rconv + Rir) + Rins 
-  Rtot = (Rwing * RE) / (Rwing + RE) + Rbody # Total resistance (ºC W-1)
+  Rtot = (Rwing * RE) / (Rwing + RE) + Rbody # Total resistance (ÂºC W-1)
   
   Bi = Rbody / Rwing
 
@@ -153,12 +153,12 @@ batmodel <- function(Tc,     # Core temperature (ºC)
 
 efficiency = 0.23 # Pennycuick 2008
 alpha = 0.57      # Proportion of by-product heat used for thermoregulation (Humphries & Careau 2011)
-Tc = 37           # Core temperature (ºC)
-kw = 20           # Thermal conductivity of the wings (W m-1 ºC-1)
+Tc = 37           # Core temperature (ÂºC)
+kw = 20           # Thermal conductivity of the wings (W m-1 ÂºC-1)
 shape = 1.1       # Body shape: ~1 (spheric), >1 (ellipsoidal)
 rf = 0.001 * M^0.33  # Depth of layer of fur (m)
 emis = 0.98       # Emissivity
-Ta = 25           # Ambient temperature (ºC)
+Ta = 25           # Ambient temperature (ÂºC)
 
 ## Flight (mass-specific)
 Pmech_mass <- Pmech
@@ -184,7 +184,7 @@ for(i in 1:100){
 ## Total mass-specific energy requirements
 Met_rate <- matQgen + Pmech_mass
 
-## Results:
+#################################### RESULTS
 # Energy requierements in relation to wing surface area for a ~10 g bats
 M[46]
 
