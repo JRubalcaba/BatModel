@@ -33,7 +33,7 @@ for(i in 1:length(M)){
   print(i)
 }
 
-############################################################ THERMOREGULATION
+############################################################### THERMOREGULATION
 
 batmodel <- function(Tc,     # Core temperature (ºC)
                      M,      # Body mass (g)
@@ -47,7 +47,7 @@ batmodel <- function(Tc,     # Core temperature (ºC)
                      RH)      # Solar radiation (direct + scattered) (Wm-2)
 {
   ## Basal Metabolic Rate ##
-  BMR_O2 = exp(0.8508) * M^0.8013 # 6.7141 * M^0.6452 # 
+  BMR_O2 = exp(0.8508) * M^0.8013 #
   BMR = BMR_O2 / 172 # (W) 1W = 172 mLO2 h-1
   
   ## Ellipsoid geometry (Porter and Kearney 2009) ## 
@@ -60,7 +60,7 @@ batmodel <- function(Tc,     # Core temperature (ºC)
   Area = 2*pi*b^2 + 2*pi*((a*b)/eccentric)*asin(eccentric) # Total surface area (m2)
   
   ## Insulation layer ## 
-  kins = 0.027  # Thermal conductivity fur (W m^-1 ?C^-1) - 0.027 (Porter and Kearney), 0.0394 (Hammel 1955)
+  kins = 0.027  # Thermal conductivity fur (W m-1 ?C-1) - 0.027 (Porter and Kearney), 0.0394 (Hammel 1955)
   ao = a + rf   # inner radium + feather layer (m)
   bo = b + rf
   co = c + rf
@@ -69,7 +69,7 @@ batmodel <- function(Tc,     # Core temperature (ºC)
   Ao = 2*pi*bo^2 + 2*pi*((ao*bo)/ecc_out)*asin(ecc_out) # External surface (m2)
 
   ## Thermal radiation ## 
-  sigma = 5.670367e-8  # Stefan-Boltzmann constant (W m^-2 K^-4)
+  sigma = 5.670367e-8  # Stefan-Boltzmann constant (W m-2 K-4)
   R = 4 * sigma * emis * (Ta+273)^3 # Thermal radiation coefficient (linear approx, Bakken 1975)
   
   ## Body convection ## 
@@ -93,26 +93,9 @@ batmodel <- function(Tc,     # Core temperature (ºC)
   
   Nu_total = (Nu_free^3 + Nu_forced^3)^(1/3)
   hc = Nu_total * kf/L # Convection coefficient body
-  
-  ## Wing convection ##
-  # Speakman et al 1994 (la que peor funciona)
-  # d = exp(0.9425) * Awings^0.4934 / 2 # wing span / 2 (m)
-  # rforc = 310 * sqrt(d / v)
-  # rfree = 820 * (d / (Tc - Ta))^0.25
-  # rtot =  rforc * rfree / (rforc + rfree)
-  # hc_wing = rho * cp / rtot
-  # Rwing  = 1 / (hc_wing*Awings)
-  
-  # Reichard et al 2010
-  # d = exp(0.9425) * Awings^0.4934 / 2
-  # Nu = 0.664 * Re^0.5 * Pr^0.33
-  # hc_wing = Nu * kf / d 
-  # Rwing_conv  = 1 / (hc_wing*Awings)
-  # Rwing_IR  = 1 / (R*Awings)
-  # Rwing = Rwing_conv * Rwing_IR / (Rwing_conv + Rwing_IR)
-  
+
   # Wing T profile
-  d = exp(0.9425) * Awings^0.4934 / 2 # wing length (m) # exp(0.75549) * Awings^0.45310 / 2  #
+  d = exp(0.9425) * Awings^0.4934 / 2 # wing length (m) 
   Nu = 0.664 * Re^0.5 * Pr^0.33
   hc_wing = Nu * kf / d + R # wing convective heat transfer coefficient (Wm-2ºC-1; from Reichard et al. 2010)
 
@@ -127,27 +110,24 @@ batmodel <- function(Tc,     # Core temperature (ºC)
   ## Metabolic Heat Production ## 
   kb = 0.5 + 6.14*b + 0.439 # Thermal conductivity body (Wm-1ºC-1) Porter and Kearney (2009)
   
-  Rbody = S2 / (2*V*kb) # Body resistance to heat conduction (ºC W-1)
+  Rgeom = S2 / (2*V*kb) # Body resistance to heat conduction (ºC W-1)
   Rconv = 1 / (hc*Ao)   # Convective heat transfer resistance
   Rir = 1 / (R*Ao)           # IR emission resistance
   Rins = (bo - b) / (Ao * kins) # Resistance of insulation layer 
   
-  # Rtot = Rbody + Rins + (Rconv * Rir * Rwing) / (Rconv + Rir + Rwing) # Total resistance (ºC W-1)
-  RE = Rconv * Rir / (Rconv + Rir) + Rins 
-  Rtot = (Rwing * RE) / (Rwing + RE) + Rbody # Total resistance (ºC W-1)
+  Rbody = Rconv * Rir / (Rconv + Rir) + Rins 
+  Rtot = (Rwing * Rbody) / (Rwing + Rbody) + Rgeom # Total resistance (ºC W-1)
   
-  Bi = Rbody / Rwing
-
   Q_gen = (Tc - Ta) / Rtot # Thermogenic heat (W)
   
   MR = Q_gen
 
   ## Model Output ## 
-  output <- data.frame(MR, BMR, Bi=Bi, Ao=Ao, Atot=Ao + Awings, V, Ta, v, RH)
+  output <- data.frame(MR, BMR, Ao=Ao, Atot=Ao + Awings, V, Ta, v, RH)
   return(output)
 }
 
-############################################################ Load data and Run Models ########################## 
+############################################################### Run Model
 
 ## PARAMETERS
 
@@ -184,7 +164,7 @@ for(i in 1:100){
 ## Total mass-specific energy requirements
 Met_rate <- matQgen + Pmech_mass
 
-#################################### RESULTS
+############################################################### Results
 # Energy requierements in relation to wing surface area for a ~10 g bats
 M[46]
 
