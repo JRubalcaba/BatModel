@@ -1,0 +1,10 @@
+"Rubalcaba_etal_database.csv" includes morphological data of bats used for the article: 
+"Physical constraints on thermoregulation and flight drive morphological evolution in bats" by Rubalcaba et al. DOI: 10.1073/pnas.2103745119
+
+Information included in the database: 
+
+Family - taxonomic family
+Species	- species name
+Mass - mean species body mass (g)
+wsurface - mean species wing surface area (cm2)
+Ta - mean environmental temperature across the species geographical range (ºC)
