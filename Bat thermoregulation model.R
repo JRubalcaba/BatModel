@@ -105,7 +105,7 @@ batmodel <- function(Tc,     # Core temperature (ºC)
   P = 2*W+2*t # wing perimeter (m)
   m = sqrt(hc_wing*P/(kw*Ac))
   
-  Rwing = 1/2 * (cosh(m*d) + hc_wing/(m*d) * sinh(m*d)) / (sqrt(hc_wing*P*kw*Ac) * (sinh(m*d) + hc_wing/(m*d) * cosh(m*d))) # Wing resistance to covective cooling (ºC W-1)
+  Rwing = 1/2 * (cosh(m*d) + hc_wing/(m*kw) * sinh(m*d)) / (sqrt(hc_wing*P*kw*Ac) * (sinh(m*d) + hc_wing/(m*kw) * cosh(m*d))) # Wing resistance to covective cooling (ºC W-1)
 
   ## Metabolic Heat Production ## 
   kb = 0.5 + 6.14*b + 0.439 # Thermal conductivity body (Wm-1ºC-1) Porter and Kearney (2009)
