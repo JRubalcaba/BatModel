@@ -184,7 +184,7 @@ lines(Met_rate[,32] ~ log(M), lwd=2)
 # Coordinate surface of energy requirements across different combinations of body mass and wing surface area
 
 levels <- seq(-10, 2, length.out = 50)
-contour(log(M_const), y=log(Awings), x=log(M), levels=levels)
+contour(log(Met_rate), y=log(Awings), x=log(M), levels=levels)
 
 
 
