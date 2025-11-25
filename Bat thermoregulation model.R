@@ -25,7 +25,7 @@ for(i in 1:length(M)){
       wingArea = Awings[j], # (m2) maximum wing area
       type = "bat"
     )
-    minspeed = findMinimumPowerSpeed(myBat)
+    minspeed = findMinimumPowerSpeed(myBat, flightcondition=myFlightCondition)
     v_matrix[i,j] = as.numeric(minspeed[2])
     Pmech[i,j] = as.numeric(minspeed[3])
     Pchem[i,j] = as.numeric(minspeed[4])
@@ -101,7 +101,7 @@ batmodel <- function(Tc,     # Core temperature (ºC)
 
   W = Awings / (2*d) # wing width (m)
   t = 2e-5 # wing thickness (m) (Cheney et al. 2015 https://royalsocietypublishing.org/doi/10.1098/rsif.2014.1286)
-  Ac = W*d*t # cross-sectional surface area (m2)
+  Ac = W*t # cross-sectional surface area (m2)
   P = 2*W+2*t # wing perimeter (m)
   m = sqrt(hc_wing*P/(kw*Ac))
   
@@ -185,6 +185,7 @@ lines(Met_rate[,32] ~ log(M), lwd=2)
 
 levels <- seq(-10, 2, length.out = 50)
 contour(log(Met_rate), y=log(Awings), x=log(M), levels=levels)
+
 
 
 
